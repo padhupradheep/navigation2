@@ -2,6 +2,8 @@
 nav_msgs/Path path
 string controller_id
 string goal_checker_id
+builtin_interfaces/Duration obstacle_clearance_time
+bool obstacle_spotted
 ---
 #result definition
 std_msgs/Empty result

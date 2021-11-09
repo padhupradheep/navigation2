@@ -380,6 +380,14 @@ void ControllerServer::computeControl()
         r.sleep();
       }
 
+      auto stored_time = rclcpp::Clock().now();
+      while ( (rclcpp::Clock().now() - stored_time).seconds() <=
+        action_server_->get_current_goal()->obstacle_clearance_time.sec
+        && action_server_->get_current_goal()->obstacle_spotted)
+      {
+        publishZeroVelocity();
+        RCLCPP_INFO(get_logger(), "waiting for the obstacle to clear");
+      }
       updateGlobalPath();
 
       computeAndPublishVelocity();

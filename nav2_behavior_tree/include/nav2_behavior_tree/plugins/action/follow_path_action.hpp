@@ -19,6 +19,7 @@
 
 #include "nav2_msgs/action/follow_path.hpp"
 #include "nav2_behavior_tree/bt_action_node.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
 
 namespace nav2_behavior_tree
 {
@@ -62,6 +63,8 @@ public:
         BT::InputPort<nav_msgs::msg::Path>("path", "Path to follow"),
         BT::InputPort<std::string>("controller_id", ""),
         BT::InputPort<std::string>("goal_checker_id", ""),
+        BT::InputPort<int>("obstacle_clearance_time", 5, "Wait time"),
+        BT::InputPort<bool>("obstacle_spotted", false, "obstacle check")
       });
   }
 };
