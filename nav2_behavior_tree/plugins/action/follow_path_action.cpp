@@ -14,7 +14,7 @@
 
 #include <memory>
 #include <string>
-
+#include "nav2_util/geometry_utils.hpp"
 #include "nav2_behavior_tree/plugins/action/follow_path_action.hpp"
 
 namespace nav2_behavior_tree
@@ -33,6 +33,8 @@ void FollowPathAction::on_tick()
   getInput("path", goal_.path);
   getInput("controller_id", goal_.controller_id);
   getInput("goal_checker_id", goal_.goal_checker_id);
+  getInput("obstacle_clearance_time", goal_.obstacle_clearance_time.sec);
+  getInput("obstacle_spotted", goal_.obstacle_spotted);
 }
 
 void FollowPathAction::on_wait_for_result()
@@ -41,11 +43,22 @@ void FollowPathAction::on_wait_for_result()
   nav_msgs::msg::Path new_path;
   getInput("path", new_path);
 
+
   // Check if it is not same with the current one
-  if (goal_.path != new_path) {
+  if (goal_.path != new_path ) {
     // the action server on the next loop iteration
+
+    if ( (nav2_util::geometry_utils::calculate_path_length(new_path, 0) >
+      nav2_util::geometry_utils::calculate_path_length(goal_.path, 0)) and 
+      (new_path.poses.back() == goal_.path.poses.back()) ) {
+      goal_.obstacle_spotted = true;
+      goal_updated_ = true; 
+    } else {
+      goal_.obstacle_spotted = false;
+      goal_updated_ = true; 
+    }
     goal_.path = new_path;
-    goal_updated_ = true;
+    goal_updated_ = true; 
   }
 
   std::string new_controller_id;
@@ -63,6 +76,21 @@ void FollowPathAction::on_wait_for_result()
     goal_.goal_checker_id = new_goal_checker_id;
     goal_updated_ = true;
   }
+}
+
+size_t FollowPathAction::calculate_distance_to_goal(nav_msgs::msg::Path path, geometry_msgs::msg::PoseStamped current_pose)
+{
+  size_t closest_pose_idx = 0;
+        double curr_min_dist = std::numeric_limits<double>::max();
+        for (size_t curr_idx = 0; curr_idx < path.poses.size(); ++curr_idx) {
+          double curr_dist = nav2_util::geometry_utils::euclidean_distance(
+            current_pose, path.poses[curr_idx]);
+          if (curr_dist < curr_min_dist) {
+            curr_min_dist = curr_dist;
+            closest_pose_idx = curr_idx;
+          }
+        }
+        return closest_pose_idx;
 }
 
 }  // namespace nav2_behavior_tree

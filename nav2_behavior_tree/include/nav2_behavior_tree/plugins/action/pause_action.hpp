@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef NAV2_BEHAVIOR_TREE__PLUGINS__ACTION__FOLLOW_PATH_ACTION_HPP_
-#define NAV2_BEHAVIOR_TREE__PLUGINS__ACTION__FOLLOW_PATH_ACTION_HPP_
+#ifndef NAV2_BEHAVIOR_TREE__PLUGINS__ACTION__PAUSE_ACTION_HPP_
+#define NAV2_BEHAVIOR_TREE__PLUGINS__ACTION__PAUSE_ACTION_HPP_
 
 #include <string>
 
-#include "nav2_msgs/action/follow_path.hpp"
+#include "nav2_msgs/action/pause.hpp"
 #include "nav2_behavior_tree/bt_action_node.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 
@@ -27,16 +27,16 @@ namespace nav2_behavior_tree
 /**
  * @brief A nav2_behavior_tree::BtActionNode class that wraps nav2_msgs::action::FollowPath
  */
-class FollowPathAction : public BtActionNode<nav2_msgs::action::FollowPath>
+class PauseAction : public BtActionNode<nav2_msgs::action::Pause>
 {
 public:
   /**
-   * @brief A constructor for nav2_behavior_tree::FollowPathAction
+   * @brief A constructor for nav2_behavior_tree::Pause
    * @param xml_tag_name Name for the XML tag for this node
    * @param action_name Action name this node creates a client for
    * @param conf BT node configuration
    */
-  FollowPathAction(
+  PauseAction(
     const std::string & xml_tag_name,
     const std::string & action_name,
     const BT::NodeConfiguration & conf);
@@ -50,32 +50,24 @@ public:
    * @brief Function to perform some user-defined operation after a timeout
    * waiting for a result that hasn't been received yet
    */
-  void on_wait_for_result() override;
+  // void on_wait_for_result() override;
 
   /**
    * @brief Creates list of BT ports
    * @return BT::PortsList Containing basic ports along with node-specific ports
    */
+  nav_msgs::msg::Path old_path;
+
   static BT::PortsList providedPorts()
   {
     return providedBasicPorts(
       {
         BT::InputPort<nav_msgs::msg::Path>("path", "Path to follow"),
-        BT::InputPort<std::string>("controller_id", ""),
-        BT::InputPort<std::string>("goal_checker_id", ""),
-        BT::InputPort<int>("obstacle_clearance_time", 5, "Wait time"),
         BT::InputPort<bool>("obstacle_spotted", false, "obstacle check")
       });
   }
-  int wait_time;
-
-  int waiting_time;
-
-  bool waited = false;
-
-  size_t calculate_distance_to_goal( nav_msgs::msg::Path path, geometry_msgs::msg::PoseStamped current_pose);
 };
 
 }  // namespace nav2_behavior_tree
 
-#endif  // NAV2_BEHAVIOR_TREE__PLUGINS__ACTION__FOLLOW_PATH_ACTION_HPP_
+#endif  // NAV2_BEHAVIOR_TREE__PLUGINS__ACTION__PAUSE_ACTION_HPP_
