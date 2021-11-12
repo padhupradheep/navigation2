@@ -3,6 +3,7 @@ project(nav2_behavior_tree CXX)
 
 find_package(ament_cmake REQUIRED)
 find_package(nav2_common REQUIRED)
+find_package(nav2_core REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
@@ -33,6 +34,7 @@ set(dependencies
   geometry_msgs
   sensor_msgs
   nav2_msgs
+  nav2_core
   nav_msgs
   behaviortree_cpp_v3
   tf2
@@ -146,6 +148,9 @@ list(APPEND plugin_libs nav2_planner_selector_bt_node)
 
 add_library(nav2_controller_selector_bt_node SHARED plugins/action/controller_selector_node.cpp)
 list(APPEND plugin_libs nav2_controller_selector_bt_node)
+
+add_library(nav2_controller_cancel_bt_node SHARED plugins/action/controller_cancel_node.cpp)
+list(APPEND plugin_libs nav2_controller_cancel_bt_node)
 
 add_library(nav2_goal_checker_selector_bt_node SHARED plugins/action/goal_checker_selector_node.cpp)
 list(APPEND plugin_libs nav2_goal_checker_selector_bt_node)
