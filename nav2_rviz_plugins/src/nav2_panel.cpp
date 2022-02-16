@@ -22,12 +22,16 @@
 #include <utility>
 #include <chrono>
 #include <string>
+#include <fstream>
 
 #include "nav2_rviz_plugins/goal_common.hpp"
 #include "rviz_common/display_context.hpp"
 #include "ament_index_cpp/get_package_share_directory.hpp"
+#include <nlohmann/json.hpp>
 
 using namespace std::chrono_literals;
+
+using json = nlohmann::json;
 
 namespace nav2_rviz_plugins
 {
@@ -45,6 +49,7 @@ Nav2Panel::Nav2Panel(QWidget * parent)
   start_reset_button_ = new QPushButton;
   pause_resume_button_ = new QPushButton;
   navigation_mode_button_ = new QPushButton;
+  save_waypoints_button_ = new QPushButton;
   navigation_status_indicator_ = new QLabel;
   localization_status_indicator_ = new QLabel;
   navigation_goal_status_indicator_ = new QLabel;
@@ -139,6 +144,9 @@ Nav2Panel::Nav2Panel(QWidget * parent)
   accumulating_->assignProperty(navigation_mode_button_, "enabled", true);
   accumulating_->assignProperty(navigation_mode_button_, "toolTip", waypoint_goal_msg);
 
+  accumulating_->assignProperty(save_waypoints_button_, "text", "Save waypoints");
+  accumulating_->assignProperty(save_waypoints_button_, "enabled", true);
+
   accumulated_wp_ = new QState();
   accumulated_wp_->setObjectName("accumulated_wp");
   accumulated_wp_->assignProperty(start_reset_button_, "text", "Cancel");
@@ -152,6 +160,9 @@ Nav2Panel::Nav2Panel(QWidget * parent)
   accumulated_wp_->assignProperty(navigation_mode_button_, "text", "Start Waypoint Following");
   accumulated_wp_->assignProperty(navigation_mode_button_, "enabled", false);
   accumulated_wp_->assignProperty(navigation_mode_button_, "toolTip", waypoint_goal_msg);
+
+  accumulated_wp_->assignProperty(save_waypoints_button_, "text", "Save waypoints");
+  accumulated_wp_->assignProperty(save_waypoints_button_, "enabled", false);
 
   accumulated_nav_through_poses_ = new QState();
   accumulated_nav_through_poses_->setObjectName("accumulated_nav_through_poses");
@@ -221,6 +232,7 @@ Nav2Panel::Nav2Panel(QWidget * parent)
   QObject::connect(
     accumulated_nav_through_poses_, SIGNAL(entered()), this,
     SLOT(onAccumulatedNTP()));
+  QObject::connect(save_waypoints_button_, &QPushButton::released, this, &Nav2Panel::handleGoalSaver);
 
   // Start/Reset button click transitions
   initial_->addTransition(start_reset_button_, SIGNAL(clicked()), idle_);
@@ -347,6 +359,7 @@ Nav2Panel::Nav2Panel(QWidget * parent)
   main_layout->addWidget(pause_resume_button_);
   main_layout->addWidget(start_reset_button_);
   main_layout->addWidget(navigation_mode_button_);
+  main_layout->addWidget(save_waypoints_button_);
 
   main_layout->setContentsMargins(10, 10, 10, 10);
   setLayout(main_layout);
@@ -379,6 +392,29 @@ Nav2Panel::Nav2Panel(QWidget * parent)
 
 Nav2Panel::~Nav2Panel()
 {
+}
+
+void Nav2Panel::handleGoalSaver() {
+
+// Check if the waypoints are accumulated
+  if(acummulated_poses_.size() == 0) {
+    std::cout<< "Please select waypoints before saving"<<std::endl;
+  } else {
+    std::cout<<"Number of waypoints that is being saved are:"<<acummulated_poses_.size()<<std::endl;
+    json goal;
+    std::ofstream save_file("position.json");
+    for (unsigned int i = 0; i < acummulated_poses_.size(); i++) {
+      goal = {
+        {"pos_x", acummulated_poses_[i].pose.position.x},
+        {"pos_y", acummulated_poses_[i].pose.position.y},
+        {"orient_x", acummulated_poses_[i].pose.orientation.x},
+        {"orient_y", acummulated_poses_[i].pose.orientation.y},
+        {"orient_z", acummulated_poses_[i].pose.orientation.z},
+        {"orient_w", acummulated_poses_[i].pose.orientation.w},
+      };
+      save_file << std::setw(4) << goal << std::endl;
+    }
+  }
 }
 
 void

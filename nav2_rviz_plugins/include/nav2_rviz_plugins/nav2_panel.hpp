@@ -68,6 +68,7 @@ private Q_SLOTS:
   void onAccumulatedNTP();
   void onAccumulating();
   void onNewGoal(double x, double y, double theta, QString frame);
+  void handleGoalSaver();
 
 private:
   void loadLogFiles();
@@ -128,6 +129,7 @@ private:
   QPushButton * start_reset_button_{nullptr};
   QPushButton * pause_resume_button_{nullptr};
   QPushButton * navigation_mode_button_{nullptr};
+  QPushButton * save_waypoints_button_{nullptr};
 
   QLabel * navigation_status_indicator_{nullptr};
   QLabel * localization_status_indicator_{nullptr};
