@@ -24,20 +24,12 @@
 #include <utility>
 #include <chrono>
 #include <string>
-#include <fstream>
 
 #include "nav2_rviz_plugins/goal_common.hpp"
 #include "rviz_common/display_context.hpp"
 #include "ament_index_cpp/get_package_share_directory.hpp"
-#include <nlohmann/json.hpp>
-#include <filesystem>
-#include <QFileDialog>
-
-namespace fs = std::filesystem;
 
 using namespace std::chrono_literals;
-
-using json = nlohmann::json;
 
 namespace nav2_rviz_plugins
 {
@@ -443,6 +435,8 @@ void Nav2Panel::handleGoalLoader() {
   QByteArray bytes = f.readAll();
 
   QJsonParseError parseError;
+  QJsonArray pose_array;
+  QJsonObject pose_obj;
   QJsonDocument d = QJsonDocument::fromJson(bytes, &parseError);
 
   // Check if we have any parsing error
@@ -451,22 +445,24 @@ void Nav2Panel::handleGoalLoader() {
       std::cout << "fromJson failed: " << parseError.errorString().toStdString() << std::endl;
       return ;
   }
-  // QJsonArray arr = d.array();
-  // std::cout<<arr.size()<<std::endl;
+  pose_obj = d.object();
+  pose_array = pose_obj.value(QString("pose")).toArray();
 
-  // for(int i = 0; i < arr.size(); i++) {
-  //   QJsonValue value = arr.at(i);
-  //   geometry_msgs::msg::PoseStamped temp_pose;
-  //   temp_pose.pose.position.x = value.toObject().value("pos_x").isDouble();
-  //   temp_pose.pose.position.y = value.toObject().value("pos_y").isDouble();
-  //   temp_pose.pose.position.z = 0;
-  //   temp_pose.pose.orientation.x = value.toObject().value("orient_x").isDouble();
-  //   temp_pose.pose.orientation.y = value.toObject().value("orient_y").isDouble();
-  //   temp_pose.pose.orientation.z = value.toObject().value("orient_z").isDouble();
-  //   temp_pose.pose.orientation.w = value.toObject().value("orient_w").isDouble();
-  //   acummulated_poses_.push_back(temp_pose);
-  // }
-
+  // Extracting the poses and setting the frame to map
+  for(int i = 0; i < pose_array.size(); i++) {
+    QJsonValue value = pose_array.at(i);
+    geometry_msgs::msg::PoseStamped temp_pose;
+    temp_pose.header.frame_id = "map";
+    temp_pose.pose.position.x =  value.toObject().value("pos_x").toDouble();
+    temp_pose.pose.position.y = value.toObject().value("pos_y").toDouble();
+    temp_pose.pose.position.z = 0.0;
+    temp_pose.pose.orientation.x = value.toObject().value("orient_x").toDouble();
+    temp_pose.pose.orientation.y = value.toObject().value("orient_y").toDouble();
+    temp_pose.pose.orientation.z = value.toObject().value("orient_z").toDouble();
+    temp_pose.pose.orientation.w = value.toObject().value("orient_w").toDouble();
+    acummulated_poses_.push_back(temp_pose);
+  }
+  f.close();
 }
 
 void Nav2Panel::handleGoalSaver() {
@@ -485,18 +481,22 @@ void Nav2Panel::handleGoalSaver() {
 
     QJsonObject content;
     QJsonObject id;
+    QJsonArray contentArray;
     QFile f( file );
     f.open( QIODevice::WriteOnly );
-
     for (unsigned int i = 0; i < acummulated_poses_.size(); i++) {
+      content.insert("id", QString::fromStdString(std::to_string(i)));
       content.insert("pos_x", acummulated_poses_[i].pose.position.x);
       content.insert("pos_y", acummulated_poses_[i].pose.position.y);
       content.insert("orient_x", acummulated_poses_[i].pose.orientation.x);
       content.insert("orient_y", acummulated_poses_[i].pose.orientation.y);
       content.insert("orient_z", acummulated_poses_[i].pose.orientation.z);
       content.insert("orient_w", acummulated_poses_[i].pose.orientation.w);
-      id.insert("pose" +  QString::fromStdString(std::to_string(i)), content);
+      contentArray.push_back(content);
     }
+    
+    id.insert("pose", contentArray);
+        
     QJsonDocument doc(id);
     f.write(doc.toJson(QJsonDocument::Indented));
     f.close();
