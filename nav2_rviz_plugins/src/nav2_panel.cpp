@@ -462,6 +462,7 @@ void Nav2Panel::handleGoalLoader() {
     temp_pose.pose.orientation.w = value.toObject().value("orient_w").toDouble();
     acummulated_poses_.push_back(temp_pose);
   }
+  updateWpNavigationMarkers();
   f.close();
 }
 
