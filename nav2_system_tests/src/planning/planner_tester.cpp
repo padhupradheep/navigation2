@@ -219,7 +219,7 @@ void PlannerTester::loadSimpleCostmap(const TestCostmap & testCostmapType)
   using_fake_costmap_ = true;
 }
 
-bool PlannerTester::clientCreation(nav_msgs::msg::Path path)
+bool PlannerTester::checkPathValid(nav_msgs::msg::Path path)
 {
   client_ = this->create_client<nav2_msgs::srv::IsPathValid>("is_path_valid");
   // create a fake service request

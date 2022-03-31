@@ -37,7 +37,7 @@ TEST(testIsPathValid, testIsPathValid)
     path.poses.push_back(pose);
   }
 
-  EXPECT_EQ(true,  planner_tester->clientCreation(path));
+  EXPECT_EQ(true,  planner_tester->checkPathValid(path));
 }
 
 int main(int argc, char ** argv)

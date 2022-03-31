@@ -156,7 +156,7 @@ public:
     const unsigned int number_tests,
     const float acceptable_fail_ratio);
 
-  bool clientCreation(nav_msgs::msg::Path path);
+  bool checkPathValid(nav_msgs::msg::Path path);
 
 private:
   void setCostmap();
