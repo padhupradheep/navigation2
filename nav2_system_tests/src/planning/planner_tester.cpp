@@ -219,6 +219,26 @@ void PlannerTester::loadSimpleCostmap(const TestCostmap & testCostmapType)
   using_fake_costmap_ = true;
 }
 
+bool PlannerTester::clientCreation(nav_msgs::msg::Path path)
+{
+  client_ = this->create_client<nav2_msgs::srv::IsPathValid>("is_path_valid");
+  // create a fake service request
+  auto request = std::make_shared<nav2_msgs::srv::IsPathValid::Request>();
+  request->path = path;
+  auto result = client_->async_send_request(request);
+
+  RCLCPP_INFO(this->get_logger(), "Waiting for service complete");
+  if (rclcpp::spin_until_future_complete(this->planner_tester_, result, std::chrono::seconds(10)) ==
+    rclcpp::FutureReturnCode::SUCCESS)
+  {
+    RCLCPP_INFO(this->get_logger(), "Got result");
+    return true;
+  } else {
+    RCLCPP_ERROR_STREAM(this->get_logger(), "Failed to call service: ");
+    return false;
+  }
+}
+
 void PlannerTester::setCostmap()
 {
   if (!map_set_) {

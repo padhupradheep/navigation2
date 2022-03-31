@@ -35,6 +35,7 @@
 #include "tf2_msgs/msg/tf_message.hpp"
 #include "nav2_planner/planner_server.hpp"
 #include "tf2_ros/transform_broadcaster.h"
+#include "nav2_msgs/srv/is_path_valid.hpp"
 
 namespace nav2_system_tests
 {
@@ -155,6 +156,8 @@ public:
     const unsigned int number_tests,
     const float acceptable_fail_ratio);
 
+  bool clientCreation(nav_msgs::msg::Path path);
+
 private:
   void setCostmap();
 
@@ -186,6 +189,8 @@ private:
 
   // A thread for spinning the ROS node
   std::unique_ptr<nav2_util::NodeThread> spin_thread_;
+
+  rclcpp::Client<nav2_msgs::srv::IsPathValid>::SharedPtr client_;
 
   // The tester must provide the robot pose through a transform
   std::unique_ptr<geometry_msgs::msg::TransformStamped> base_transform_;
