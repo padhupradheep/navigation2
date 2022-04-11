@@ -37,6 +37,7 @@ set(nav2_rviz_plugins_headers_to_moc
   include/nav2_rviz_plugins/goal_common
   include/nav2_rviz_plugins/goal_tool.hpp
   include/nav2_rviz_plugins/nav2_panel.hpp
+  include/nav2_rviz_plugins/waypoint_tool.hpp
   include/nav2_rviz_plugins/particle_cloud_display/flat_weighted_arrows_array.hpp
   include/nav2_rviz_plugins/particle_cloud_display/particle_cloud_display.hpp
 )
@@ -52,6 +53,7 @@ add_library(${library_name} SHARED
   src/nav2_panel.cpp
   src/particle_cloud_display/flat_weighted_arrows_array.cpp
   src/particle_cloud_display/particle_cloud_display.cpp
+  src/waypoint_tool.cpp
   ${nav2_rviz_plugins_headers_to_moc}
 )
 

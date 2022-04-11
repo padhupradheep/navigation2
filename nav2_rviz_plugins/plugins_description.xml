@@ -18,4 +18,9 @@
     <description>The Particle Cloud rviz display.</description>
   </class>
 
+  <class name="nav2_rviz_plugins/WayPointTool"
+         type="nav2_rviz_plugins::WayPointTool"
+         base_class_type="rviz_common::Panel">
+    <description>The Rviz WayPoint Tool.</description>
+  </class>
 </library>
