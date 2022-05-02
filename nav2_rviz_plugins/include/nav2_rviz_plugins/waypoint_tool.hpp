@@ -16,17 +16,18 @@
 #ifndef NAV2_RVIZ_PLUGINS__WAYPOINT_TOOL_HPP_
 #define NAV2_RVIZ_PLUGINS__WAYPOINT_TOOL_HPP_
 
+#include "rclcpp/rclcpp.hpp"
+#include "rviz_common/panel.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "nav2_msgs/action/follow_waypoints.hpp"
+#include "rclcpp_action/rclcpp_action.hpp"
+
 #include <thread>
 #include <chrono>
 #include <memory>
 #include <vector>
 #include <stdlib.h>
 #include <stdio.h>
-#include "rclcpp/rclcpp.hpp"
-#include "rviz_common/panel.hpp"
-#include "geometry_msgs/msg/pose_stamped.hpp"
-#include "nav2_msgs/action/follow_waypoints.hpp"
-#include "rclcpp_action/rclcpp_action.hpp"
 #include <QPushButton>
 #include <QCheckBox>
 #include <QLineEdit>
@@ -58,13 +59,39 @@ public:
   explicit WayPointTool(QWidget * parent = 0);
 
 private Q_SLOTS:
+  /**
+   * @brief load in a prevoiously saved set of waypoints
+   */
   void Load();
+
+  /**
+   * @brief Save the current ordered set of waypoints
+   */
   void Save();
+
+  /**
+   * @brief publish the accumulated set of waypoints over the waypoint follower action server
+   */
   void follow_waypoints();
+
+  /**
+   * @brief 
+   * @param state 
+   */
   void loop_cb(int state);
+
+  /**
+   * @brief accumalate an ordered set of waypoints from the goal tool
+   * @param x 
+   * @param y 
+   * @param theta 
+   * @param frame 
+   */
   void accumalate_points(double x, double y, double theta, QString frame);
 
 protected:
+
+  // qt box
   QVBoxLayout * _vbox;
   QHBoxLayout * _hbox1;
   QHBoxLayout * _hbox2;
@@ -72,18 +99,22 @@ protected:
   QHBoxLayout * _hbox4;
   QHBoxLayout * _hbox5;
 
+  // qt buttons
   QPushButton * _button1;
   QPushButton * _button2;
   QPushButton * _button3;
-
   QCheckBox * _check1;
 
+  // qt line
   QLineEdit * _line1;
+
+  // qt labels
   QLabel * _label1;
   QLabel * _label2;
 
   QFrame * _line;
 
+  // ros 
   rclcpp::Node::SharedPtr ros_node_;
   std::vector<geometry_msgs::msg::PoseStamped> waypoints;
   rclcpp_action::Client<nav2_msgs::action::FollowWaypoints>::SharedPtr waypoint_follower_action_client;

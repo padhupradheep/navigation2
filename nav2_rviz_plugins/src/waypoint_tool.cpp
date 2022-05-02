@@ -81,7 +81,7 @@ WayPointTool::WayPointTool(QWidget * parent)
   setLayout(_vbox);
 
   QObject::connect(
-    &GoalUpdater, SIGNAL(updateGoal(double,double,double,QString)),                 // NOLINT
+    &GoalUpdater, SIGNAL(updateGoal(double,double,double,QString)), // NOLINT
     this, SLOT(accumalate_points(double,double,double,QString)));  // NOLINT
 }
 
@@ -92,9 +92,7 @@ void WayPointTool::Save()
     std::cout << "No accumulated Points to Save!" << std::endl;
     return;
   }
-
   std::cout << "Saving Waypoints!" << std::endl;
-
 }
 
 void WayPointTool::Load()
@@ -119,11 +117,11 @@ void WayPointTool::follow_waypoints()
   }
   waypoint_follower_goal.poses = poses;
 
-  RCLCPP_INFO(
+  RCLCPP_INFO(ros_node_->get_logger(),
     "Sending a path of %zu waypoints:)",
     waypoint_follower_goal.poses.size());
   for (auto waypoint : waypoint_follower_goal.poses) {
-    RCLCPP_DEBUG(
+    RCLCPP_DEBUG(ros_node_->get_logger(),
       "\t(%lf, %lf)", waypoint.pose.position.x, waypoint.pose.position.y);
   }
 
@@ -147,7 +145,6 @@ void WayPointTool::loop_cb(int state)
     _line1->setDisabled(false);
   else
     _line1->setDisabled(true); 
-
 }
 
 void WayPointTool::accumalate_points(double x, double y, double theta, QString frame)
