@@ -85,7 +85,7 @@ WayPointTool::WayPointTool(QWidget * parent)
     this, SLOT(accumalate_points(double,double,double,QString)));  // NOLINT
 }
 
-void WayPointTool::Save()
+void WayPointTool::save()
 {
   if(waypoints.empty())
   {
@@ -95,7 +95,7 @@ void WayPointTool::Save()
   std::cout << "Saving Waypoints!" << std::endl;
 }
 
-void WayPointTool::Load()
+void WayPointTool::load()
 {
   std::cout << "Load lmao" << std::endl;
 }

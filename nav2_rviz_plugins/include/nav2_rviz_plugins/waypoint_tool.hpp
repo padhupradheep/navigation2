@@ -62,12 +62,12 @@ private Q_SLOTS:
   /**
    * @brief load in a prevoiously saved set of waypoints
    */
-  void Load();
+  void load();
 
   /**
    * @brief Save the current ordered set of waypoints
    */
-  void Save();
+  void save();
 
   /**
    * @brief publish the accumulated set of waypoints over the waypoint follower action server
