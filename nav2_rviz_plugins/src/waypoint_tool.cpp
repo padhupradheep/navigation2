@@ -16,6 +16,7 @@
 #include <QLabel>
 #include <QFrame>
 #include <memory>
+#include <QDebug> 
 
 namespace nav2_rviz_plugins
 {
@@ -37,11 +38,11 @@ WayPointTool::WayPointTool(QWidget * parent)
 
   _button1 = new QPushButton(this);
   _button1->setText("Load WayPoints");
-  connect(_button1, SIGNAL(clicked()), this, SLOT(Load()));
+  connect(_button1, SIGNAL(clicked()), this, SLOT(load()));
 
   _button2 = new QPushButton(this);
   _button2->setText("Save WayPoints");
-  connect(_button2, SIGNAL(clicked()), this, SLOT(Save()));
+  connect(_button2, SIGNAL(clicked()), this, SLOT(save()));
 
   _check1 = new QCheckBox();
   _check1->setChecked(false);
@@ -89,22 +90,23 @@ void WayPointTool::save()
 {
   if(waypoints.empty())
   {
-    std::cout << "No accumulated Points to Save!" << std::endl;
+    qDebug() << "No accumulated Points to Save!";
     return;
   }
+  // save waypoints to data structure 
   std::cout << "Saving Waypoints!" << std::endl;
 }
 
 void WayPointTool::load()
 {
-  std::cout << "Load lmao" << std::endl;
+  qDebug() << "Load lmao";
 }
 
 void WayPointTool::follow_waypoints()
 {
   if(waypoints.empty())
   {
-    std::cout << "No accumulated Points to Follow!" << std::endl;
+    qDebug() << "No accumulated Points to Follow!";
     return;
   }
   auto feedback = std::make_shared<nav2_msgs::action::FollowWaypoints::Feedback>();
@@ -155,8 +157,10 @@ void WayPointTool::accumalate_points(double x, double y, double theta, QString f
   pose.pose.position.x = x;
   pose.pose.position.y = y;
   pose.pose.position.z = 0.0;
+
   pose.pose.orientation = orientationAroundZAxis(theta);
 
+  
   waypoints.push_back(pose);
 }
 

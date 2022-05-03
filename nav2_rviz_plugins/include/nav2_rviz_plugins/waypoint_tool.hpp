@@ -21,6 +21,7 @@
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "nav2_msgs/action/follow_waypoints.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
+#include "nav2_rviz_plugins/goal_pose_updater.hpp"
 
 #include <thread>
 #include <chrono>
@@ -121,6 +122,7 @@ protected:
   nav2_msgs::action::FollowWaypoints::Goal waypoint_follower_goal;
   WaypointFollowerGoalHandle::SharedPtr waypoint_follower_goal_handle;
   std::unique_ptr<std::thread> _thread;
+  GoalPoseUpdater GoalUpdater;
 };
 
 }  // namespace WayPointTool
