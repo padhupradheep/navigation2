@@ -17,6 +17,8 @@
 #include <QFrame>
 #include <memory>
 #include <QDebug> 
+#include <QFileDialog>
+#include "yaml-cpp/yaml.h"
 
 namespace nav2_rviz_plugins
 {
@@ -58,7 +60,7 @@ WayPointTool::WayPointTool(QWidget * parent)
   _hbox2->addWidget(_label1);
   _hbox2->addWidget(_check1);
   _hbox2->setSpacing(10);
-  connect(_check1, SIGNAL(stateChanged(int)), this, SLOT(loop_cb(int)));
+  // connect(_check1, SIGNAL(stateChanged(int)), this, SLOT(loop_cb(int)));
 
   _line1->setDisabled(true);
   _line1->setFixedWidth(100);
@@ -69,7 +71,7 @@ WayPointTool::WayPointTool(QWidget * parent)
 
   _button3 = new QPushButton(this);
   _button3->setText("Follow WayPoints");
-  connect(_button3, SIGNAL(clicked()), this, SLOT(follow_waypoints()));
+  // connect(_button3, SIGNAL(clicked()), this, SLOT(follow_waypoints()));
   _hbox5->addWidget(_button3);
 
   _vbox->addLayout(_hbox1);
@@ -81,9 +83,9 @@ WayPointTool::WayPointTool(QWidget * parent)
   _vbox->setContentsMargins(5, 5, 5, 5);
   setLayout(_vbox);
 
-  QObject::connect(
-    &GoalUpdater, SIGNAL(updateGoal(double,double,double,QString)), // NOLINT
-    this, SLOT(accumalate_points(double,double,double,QString)));  // NOLINT
+  // QObject::connect(
+  //   &GoalUpdater, SIGNAL(updateGoal(double,double,double,QString)), // NOLINT
+  //   this, SLOT(accumalate_points(double,double,double,QString)));  // NOLINT
 }
 
 void WayPointTool::save()
@@ -99,7 +101,12 @@ void WayPointTool::save()
 
 void WayPointTool::load()
 {
-  qDebug() << "Load lmao";
+  // QString file = QFileDialog::getOpenFileName(this,
+  //       tr("Open File"), "",
+  //       tr("yaml(*.yaml);;All Files (*)"));
+  YAML::Node available_waypoints = YAML::LoadFile("waypoints.yaml");
+  
+  std::cout<<available_waypoints["waypoints"]["h_id"].as<int>()<<std::endl;
 }
 
 void WayPointTool::follow_waypoints()
