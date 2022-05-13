@@ -1,3 +1,19 @@
+// Copyright (c) 2022 Avery Girven
+// Copyright (c) 2022 University of Michigan -Dearborn
+// Copyright (c) 2022 Neobotix GmbH
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #include "nav2_rviz_plugins/waypoint_tool.hpp"
 #include "nav2_rviz_plugins/goal_common.hpp"
 #include "nav2_rviz_plugins/goal_pose_updater.hpp"
@@ -18,6 +34,7 @@
 #include <memory>
 #include <QDebug> 
 #include <QFileDialog>
+#include <fstream>
 #include "yaml-cpp/yaml.h"
 
 namespace nav2_rviz_plugins
@@ -83,9 +100,9 @@ WayPointTool::WayPointTool(QWidget * parent)
   _vbox->setContentsMargins(5, 5, 5, 5);
   setLayout(_vbox);
 
-  // QObject::connect(
-  //   &GoalUpdater, SIGNAL(updateGoal(double,double,double,QString)), // NOLINT
-  //   this, SLOT(accumalate_points(double,double,double,QString)));  // NOLINT
+  QObject::connect(
+    &GoalUpdater, SIGNAL(updateGoal(double,double,double,QString)), // NOLINT
+    this, SLOT(accumalate_points(double,double,double,QString)));  // NOLINT
 }
 
 void WayPointTool::save()
@@ -95,18 +112,64 @@ void WayPointTool::save()
     qDebug() << "No accumulated Points to Save!";
     return;
   }
+
+  YAML::Emitter out;
+  out << YAML::BeginMap;
+  out << YAML::Key << "waypoints";
+
+  for (unsigned int i = 0; i < waypoints.size(); ++i) {
+    out << YAML::BeginMap;
+    out << YAML::Key << "pose";
+    std::vector<double> pose = {waypoints[i].pose.position.x, waypoints[i].pose.position.y, waypoints[i].pose.position.z};
+    out << YAML::Value << pose;
+    out << YAML::Key << "orientation";
+    std::vector<double> orientation = {waypoints[i].pose.orientation.w, waypoints[i].pose.orientation.x, waypoints[i].pose.orientation.y, waypoints[i].pose.orientation.z};
+    out << YAML::Value << orientation;
+  }
+
+  std::ofstream fout("file.yaml");
+  fout << out.c_str();
+
   // save waypoints to data structure 
   std::cout << "Saving Waypoints!" << std::endl;
 }
 
 void WayPointTool::load()
 {
-  // QString file = QFileDialog::getOpenFileName(this,
-  //       tr("Open File"), "",
-  //       tr("yaml(*.yaml);;All Files (*)"));
+  QString file = QFileDialog::getOpenFileName(this,
+        tr("Open File"), "",
+        tr("yaml(*.yaml);;All Files (*)"));
+
   YAML::Node available_waypoints = YAML::LoadFile("waypoints.yaml");
   
-  std::cout<<available_waypoints["waypoints"]["h_id"].as<int>()<<std::endl;
+  const YAML::Node& waypoint_iter = available_waypoints["waypoints"];
+  for (YAML::const_iterator it = waypoint_iter.begin(); it != waypoint_iter.end(); ++it) {
+    const YAML::Node& waypoint = *it;
+    auto pose = waypoint["pose"].as<std::vector<double>>();
+    auto orientation = waypoint["orientation"].as<std::vector<double>>();
+    waypoints.push_back(convert_to_msg(pose, orientation));
+  }
+}
+
+geometry_msgs::msg::PoseStamped WayPointTool::convert_to_msg(
+  std::vector<double> pose,
+  std::vector<double> orientation)
+{
+  auto msg = geometry_msgs::msg::PoseStamped();
+
+  msg.header.frame_id = "map";
+  msg.header.stamp = rclcpp::Clock().now();
+
+  msg.pose.position.x = pose[0];
+  msg.pose.position.y = pose[1];
+  msg.pose.position.z = pose[2];
+  
+  msg.pose.orientation.w = orientation[0];
+  msg.pose.orientation.w = orientation[1];
+  msg.pose.orientation.w = orientation[2];
+  msg.pose.orientation.w = orientation[3];
+
+  return msg;
 }
 
 void WayPointTool::follow_waypoints()

@@ -1,5 +1,6 @@
 // Copyright (c) 2022 Avery Girven
 // Copyright (c) 2022 University of Michigan -Dearborn
+// Copyright (c) 2022 Neobotix GmbH
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,6 +40,7 @@
 #include <QLabel>
 #include <QFrame>
 #include <QRadioButton>
+#include "yaml-cpp/yaml.h"
 
 class QLineEdit;
 class QSpinBox;
@@ -90,6 +92,15 @@ private Q_SLOTS:
    */
   void accumalate_points(double x, double y, double theta, QString frame);
 
+  /**
+   * @brief converts the parsed vector pose and orientation to message
+   * @param x 
+   * @param y 
+   */
+  geometry_msgs::msg::PoseStamped convert_to_msg(
+    std::vector<double> pose,
+    std::vector<double> orientation);
+
 protected:
 
   // qt box
@@ -123,6 +134,7 @@ protected:
   WaypointFollowerGoalHandle::SharedPtr waypoint_follower_goal_handle;
   std::unique_ptr<std::thread> _thread;
   GoalPoseUpdater GoalUpdater;
+  
 };
 
 }  // namespace WayPointTool
