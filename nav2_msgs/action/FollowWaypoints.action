@@ -1,6 +1,4 @@
 #goal definition
-uint32 number_of_loops
-uint32 goal_index
 geometry_msgs/PoseStamped[] poses
 ---
 #result definition
