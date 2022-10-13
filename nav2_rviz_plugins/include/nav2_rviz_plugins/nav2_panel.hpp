@@ -145,6 +145,9 @@ private:
   std::shared_ptr<nav2_lifecycle_manager::LifecycleManagerClient> client_loc_;
 
   QCheckBox * store_initial_pose_checkbox_{nullptr};
+  QRadioButton * navigate_through_pose_{nullptr};
+  QRadioButton * waypoint_following_{nullptr};
+
 
   QPushButton * start_reset_button_{nullptr};
   QPushButton * pause_resume_button_{nullptr};

@@ -19,6 +19,7 @@
 #include <QHBoxLayout>
 #include <QTextEdit>
 #include <QCheckBox>
+#include <QRadioButton> 
 
 #include <memory>
 #include <vector>
@@ -59,6 +60,8 @@ Nav2Panel::Nav2Panel(QWidget * parent)
   number_of_loops_ = new QLabel;
   nr_of_loops_ = new QLineEdit;
   store_initial_pose_checkbox_ = new QCheckBox("Store initial_pose");
+  waypoint_following_= new QRadioButton("waypoint");
+  navigate_through_pose_= new QRadioButton("through_poses");
 
   // Create the state machine used to present the proper control button states in the UI
 
@@ -475,6 +478,8 @@ Nav2Panel::Nav2Panel(QWidget * parent)
   // Lay out the items in the panel
   QVBoxLayout * main_layout = new QVBoxLayout;
   QHBoxLayout * side_layout = new QHBoxLayout;
+  QHBoxLayout * side_layout1 = new QHBoxLayout;
+
   main_layout->addWidget(navigation_status_indicator_);
   main_layout->addWidget(localization_status_indicator_);
   main_layout->addWidget(navigation_goal_status_indicator_);
@@ -489,8 +494,11 @@ Nav2Panel::Nav2Panel(QWidget * parent)
   side_layout->addWidget(number_of_loops_);
   side_layout->addWidget(nr_of_loops_);
   side_layout->addWidget(store_initial_pose_checkbox_);
+  side_layout1->addWidget(waypoint_following_);
+  side_layout1->addWidget(navigate_through_pose_);
 
   main_layout->addLayout(side_layout);
+  main_layout->addLayout(side_layout1);
 
   main_layout->setContentsMargins(10, 10, 10, 10);
   setLayout(main_layout);
